@@ -7,8 +7,8 @@ from flask import Flask, request, jsonify, send_from_directory
 
 app = Flask(__name__, static_folder='static')
 
-INPUT_URL  = os.environ.get("INPUT_URL",  "")
-OUTPUT_URL = os.environ.get("OUTPUT_URL", "")
+INPUT_URL   = os.environ.get("INPUT_URL",  "")
+OUTPUT_URL  = os.environ.get("OUTPUT_URL", "")
 NGROK_TOKEN = os.environ.get("NGROK_TOKEN", "")
 
 ZMQ_PORT = 5556
@@ -30,7 +30,7 @@ overlay_config = {
     "bg": True
 }
 
-# ── ZMQ sender ──
+# ── ZMQ ──
 zmq_context = zmq.Context()
 
 def send_zmq_command(command):
@@ -63,7 +63,7 @@ def update_overlay_live(config):
     fc = color_map.get(color, "white")
 
     if not visible or not text.strip():
-        send_zmq_command("Parsed_drawtext_0 reinit fontcolor=black@0")
+        send_zmq_command("Parsed_drawtext_0 reinit fontcolor=black@0:text= ")
         return
 
     safe_text = text.replace("'","").replace("\\","").replace(":","　").replace("\n"," ")
@@ -106,7 +106,7 @@ def set_overlay():
     overlay_config.update(data)
     update_overlay_live(overlay_config)
     stream_status["current_text"] = overlay_config.get("text", "")
-    stream_status["visible"] = overlay_config.get("visible", False)
+    stream_status["visible"]      = overlay_config.get("visible", False)
     return jsonify({"ok": True})
 
 @app.route('/api/status')
@@ -116,8 +116,11 @@ def status():
 # ── FFmpeg ──
 
 def build_ffmpeg_cmd():
-    vf = (
-        f"fps=30,scale=1280:-2,drawtext=text='_':fontsize=48:fontcolor=white@0:x=(W-tw)/2:y=h*0.9,zmq=bind_address=tcp\\://127.0.0.1\\:{ZMQ_PORT}"
+    # filter_complex يحل مشكلة الـ escape مع zmq
+    fc = (
+        f"[0:v]fps=30,scale=1280:-2,"
+        f"drawtext=text=' ':fontsize=48:fontcolor=white@0:x=10:y=10"
+        f"[txt];[txt]zmq[out]"
     )
     return [
         'ffmpeg',
@@ -131,6 +134,9 @@ def build_ffmpeg_cmd():
         '-reconnect_delay_max', '5',
         '-timeout', '10000000',
         '-i', INPUT_URL,
+        '-filter_complex', fc,
+        '-map', '[out]',
+        '-map', '0:a?',
         '-vcodec', 'libx264',
         '-preset', 'ultrafast',
         '-tune', 'zerolatency',
@@ -138,7 +144,6 @@ def build_ffmpeg_cmd():
         '-maxrate', '2500k',
         '-bufsize', '5000k',
         '-pix_fmt', 'yuv420p',
-        '-vf', vf,
         '-g', '60',
         '-keyint_min', '60',
         '-sc_threshold', '0',
@@ -175,6 +180,7 @@ def start_stream():
             def reapply_overlay():
                 time.sleep(4)
                 if overlay_config.get("visible") and overlay_config.get("text"):
+                    print("🔁 Re-applying overlay...")
                     update_overlay_live(overlay_config)
             threading.Thread(target=reapply_overlay, daemon=True).start()
 
@@ -198,12 +204,12 @@ def start_stream():
 
 def start_ngrok():
     if not NGROK_TOKEN:
-        print("⚠️ NGROK_TOKEN غير موجود — لن يتم فتح النفق")
+        print("⚠️ NGROK_TOKEN غير موجود")
         return
     try:
         from pyngrok import ngrok, conf
         conf.get_default().auth_token = NGROK_TOKEN
-        time.sleep(2)  # انتظر Flask يشتغل
+        time.sleep(2)
         tunnel = ngrok.connect(7860)
         print("\n" + "="*55)
         print(f"🌐 رابط لوحة التحكم:")
