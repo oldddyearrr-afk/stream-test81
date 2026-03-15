@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎬 Stream Overlay Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080810;
+    --s1: #0e0e1a;
+    --s2: #14141f;
+    --border: #1e1e30;
+    --accent: #6c47ff;
+    --accent2: #ff4778;
+    --green: #00e5a0;
+    --red: #ff4d6d;
+    --yellow: #ffe600;
+    --text: #e4e4f0;
+    --muted: #55556a;
+    --live: #ff3b3b;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content:'';
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(ellipse 70% 50% at 10% 0%, rgba(108,71,255,.1) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 90% 100%, rgba(255,71,120,.07) 0%, transparent 60%);
+  }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+    position: relative; z-index:1;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .brand-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  .brand-name {
+    font-size: 20px; font-weight: 900;
+    background: linear-gradient(90deg, #fff 0%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  .brand-sub {
+    font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  /* Live Badge */
+  .live-badge {
+    display: flex; align-items: center; gap: 7px;
+    background: rgba(255,59,59,.12);
+    border: 1px solid rgba(255,59,59,.3);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px; font-weight: 700; letter-spacing: 1px;
+    color: var(--live);
+    transition: all .3s;
+  }
+
+  .live-badge.offline {
+    color: var(--muted);
+    background: rgba(85,85,106,.1);
+    border-color: rgba(85,85,106,.2);
+  }
+
+  .live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--live);
+    animation: livePulse 1.2s infinite;
+  }
+
+  .live-badge.offline .live-dot {
+    background: var(--muted);
+    animation: none;
+  }
+
+  @keyframes livePulse {
+    0%,100%{opacity:1;transform:scale(1)}
+    50%{opacity:.4;transform:scale(.8)}
+  }
+
+  /* ── Preview ── */
+  .preview-wrap {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .preview-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .preview-screen {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: #000;
+    overflow: hidden;
+  }
+
+  .preview-bg {
+    position:absolute; inset:0;
+    background: linear-gradient(160deg, #0d1117 0%, #161b27 40%, #0d1929 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .preview-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .preview-label {
+    color: rgba(255,255,255,.06);
+    font-size: 10px; letter-spacing: 6px; text-transform: uppercase;
+  }
+
+  #previewEl {
+    position: absolute;
+    font-family: 'Cairo', sans-serif;
+    font-weight: 900;
+    white-space: nowrap;
+    text-shadow: 0 2px 8px rgba(0,0,0,.9);
+    display: none;
+    padding: 3px 10px;
+    border-radius: 4px;
+  }
+
+  #previewEl.hasbg { background: rgba(0,0,0,.55); }
+
+  @keyframes scrollLeft {
+    from{transform:translateX(110vw)} to{transform:translateX(-110vw)}
+  }
+  @keyframes fadeLoop {
+    0%,100%{opacity:0} 20%,80%{opacity:1}
+  }
+
+  #previewEl.anim-scroll { animation: scrollLeft 7s linear infinite; left:0!important; }
+  #previewEl.anim-fade   { animation: fadeLoop 3s ease-in-out infinite; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--s1);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 14px;
+    transition: border-color .25s;
+  }
+  .card:focus-within { border-color: rgba(108,71,255,.4); }
+
+  .card-head {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 7px;
+  }
+
+  /* Textarea */
+  .textarea {
+    width: 100%;
+    background: var(--s2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 17px; font-weight: 600;
+    resize: none; height: 76px;
+    transition: border-color .2s, box-shadow .2s;
+    direction: rtl;
+  }
+
+  .textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(108,71,255,.15);
+  }
+
+  .textarea::placeholder { color: var(--muted); }
+
+  /* Char counter */
+  .char-row {
+    display: flex; justify-content: flex-end;
+    margin-top: 6px;
+    font-size: 11px; color: var(--muted);
+  }
+
+  /* Style Tabs */
+  .tabs {
+    display: flex; gap: 8px;
+  }
+
+  .tab {
+    flex: 1; padding: 9px 8px;
+    border-radius: 9px;
+    border: 1.5px solid var(--border);
+    background: var(--s2);
+    color: var(--muted);
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all .2s;
+    text-align: center; display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+  }
+  .tab span { font-size: 18px; }
+  .tab:hover { border-color: var(--accent); color: var(--text); }
+  .tab.on {
+    background: rgba(108,71,255,.15);
+    border-color: var(--accent);
+    color: #a78fff;
+  }
+
+  /* Sliders */
+  .sl-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+  }
+  .sl-row:last-child { margin-bottom: 0; }
+
+  .sl-lbl {
+    font-size: 12px; color: var(--muted);
+    min-width: 90px; flex-shrink: 0;
+  }
+
+  input[type=range] {
+    flex:1; -webkit-appearance:none;
+    height: 3px; border-radius: 2px;
+    background: var(--border); outline: none;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance:none;
+    width: 17px; height: 17px; border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 0 3px rgba(108,71,255,.25);
+    transition: box-shadow .2s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 0 5px rgba(108,71,255,.35);
+  }
+
+  .sl-val {
+    font-size: 13px; font-weight: 700; color: var(--accent);
+    min-width: 40px; text-align: left;
+  }
+
+  /* Colors */
+  .colors { display: flex; gap: 9px; flex-wrap: wrap; margin-bottom: 14px; }
+
+  .col-opt {
+    width: 34px; height: 34px; border-radius: 50%;
+    cursor: pointer;
+    border: 2.5px solid transparent;
+    transition: transform .15s, border-color .15s;
+  }
+  .col-opt:hover { transform: scale(1.12); }
+  .col-opt.on { border-color: #fff; transform: scale(1.08); }
+
+  /* Toggle */
+  .tog-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+
+  .tog-info .tog-title { font-size: 14px; font-weight: 600; }
+  .tog-info .tog-desc  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .tog {
+    width: 48px; height: 26px; border-radius: 13px;
+    background: var(--border);
+    position: relative; cursor: pointer;
+    transition: background .25s; border: none; flex-shrink: 0;
+  }
+  .tog.on { background: var(--green); }
+  .tog::after {
+    content:''; position: absolute;
+    top:3px; left:3px; width:20px; height:20px;
+    border-radius:50%; background:#fff;
+    transition: transform .25s;
+    box-shadow: 0 1px 4px rgba(0,0,0,.4);
+  }
+  .tog.on::after { transform: translateX(22px); }
+
+  /* Buttons */
+  .btn-send {
+    width: 100%; padding: 15px;
+    border-radius: 12px; border: none;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    color: #fff; font-family: 'Cairo', sans-serif;
+    font-size: 16px; font-weight: 900;
+    cursor: pointer; transition: opacity .2s, transform .1s;
+    position: relative; overflow: hidden;
+  }
+  .btn-send::before {
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(135deg, rgba(255,255,255,.15) 0%, transparent 60%);
+    opacity:0; transition: opacity .2s;
+  }
+  .btn-send:hover::before { opacity:1; }
+  .btn-send:active { transform: scale(.98); }
+  .btn-send:disabled { opacity: .35; cursor: not-allowed; }
+
+  .btn-clear {
+    width: 100%; padding: 12px; margin-top: 9px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(255,77,109,.3);
+    background: rgba(255,77,109,.06);
+    color: var(--red);
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: background .2s, border-color .2s;
+  }
+  .btn-clear:hover {
+    background: rgba(255,77,109,.12);
+    border-color: rgba(255,77,109,.5);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(70px);
+    background: var(--s1); border: 1px solid var(--border);
+    border-radius: 10px; padding: 11px 22px;
+    font-size: 13px; font-weight: 700;
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+    z-index: 999; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.ok  { border-color: var(--green); color: var(--green); }
+  .toast.err { border-color: var(--red);   color: var(--red); }
+
+  /* overlay active indicator */
+  .overlay-active-bar {
+    display:none;
+    background: rgba(0,229,160,.08);
+    border: 1px solid rgba(0,229,160,.25);
+    border-radius: 10px;
+    padding: 9px 14px;
+    margin-bottom: 14px;
+    font-size: 12px; color: var(--green);
+    align-items: center; gap: 8px;
+  }
+  .overlay-active-bar.show { display:flex; }
+  .overlay-active-bar b { font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">🎬</div>
+      <div>
+        <div class="brand-name">Stream Overlay</div>
+        <div class="brand-sub">Pro Control Panel</div>
+      </div>
+    </div>
+    <div class="live-badge offline" id="liveBadge">
+      <div class="live-dot"></div>
+      <span id="liveText">جاري الاتصال</span>
+    </div>
+  </div>
+
+  <!-- Overlay Active Bar -->
+  <div class="overlay-active-bar" id="activeBar">
+    <span>✅</span>
+    <span>النص على البث الآن: <b id="activeText">—</b></span>
+  </div>
+
+  <!-- Preview -->
+  <div class="preview-wrap">
+    <div class="preview-header">
+      <span>👁</span> معاينة — تقريبية فقط
+    </div>
+    <div class="preview-screen">
+      <div class="preview-bg">
+        <div class="preview-grid"></div>
+        <span class="preview-label">LIVE STREAM PREVIEW</span>
+      </div>
+      <div id="previewEl"></div>
+    </div>
+  </div>
+
+  <!-- Text -->
+  <div class="card">
+    <div class="card-head"><span>✏️</span> النص</div>
+    <textarea class="textarea" id="txtInput" placeholder="اكتب ما تريد إظهاره على البث..." maxlength="120"></textarea>
+    <div class="char-row"><span id="charCount">0</span> / 120</div>
+  </div>
+
+  <!-- Style -->
+  <div class="card">
+    <div class="card-head"><span>🎞</span> نوع الحركة</div>
+    <div class="tabs">
+      <button class="tab on" data-s="scroll" onclick="pickStyle(this)">
+        <span>◀▶</span>متحرك
+      </button>
+      <button class="tab" data-s="static" onclick="pickStyle(this)">
+        <span>⬛</span>ثابت
+      </button>
+      <button class="tab" data-s="fade" onclick="pickStyle(this)">
+        <span>✨</span>ظهور واختفاء
+      </button>
+    </div>
+  </div>
+
+  <!-- Position & Size -->
+  <div class="card">
+    <div class="card-head"><span>📐</span> الموقع والحجم</div>
+    <div class="sl-row">
+      <span class="sl-lbl">الموقع العمودي</span>
+      <input type="range" id="posY" min="5" max="95" value="90"
+        oninput="slVal('posYv',this.value,'%');preview()">
+      <span class="sl-val" id="posYv">90%</span>
+    </div>
+    <div class="sl-row">
+      <span class="sl-lbl">حجم الخط</span>
+      <input type="range" id="fSize" min="24" max="96" value="48"
+        oninput="slVal('fSizev',this.value,'px');preview()">
+      <span class="sl-val" id="fSizev">48px</span>
+    </div>
+  </div>
+
+  <!-- Color & BG -->
+  <div class="card">
+    <div class="card-head"><span>🎨</span> اللون والخلفية</div>
+    <div class="colors">
+      <div class="col-opt on"  data-c="white"  style="background:#fff"    onclick="pickColor(this)" title="أبيض"></div>
+      <div class="col-opt"     data-c="yellow" style="background:#FFE600" onclick="pickColor(this)" title="أصفر"></div>
+      <div class="col-opt"     data-c="red"    style="background:#FF4D6D" onclick="pickColor(this)" title="أحمر"></div>
+      <div class="col-opt"     data-c="cyan"   style="background:#00E5FF" onclick="pickColor(this)" title="سماوي"></div>
+      <div class="col-opt"     data-c="lime"   style="background:#00E5A0" onclick="pickColor(this)" title="أخضر"></div>
+      <div class="col-opt"     data-c="orange" style="background:#FF9500" onclick="pickColor(this)" title="برتقالي"></div>
+    </div>
+    <div class="tog-row">
+      <div class="tog-info">
+        <div class="tog-title">خلفية شفافة خلف النص</div>
+        <div class="tog-desc">تسهّل القراءة على أي خلفية</div>
+      </div>
+      <button class="tog on" id="bgTog" onclick="toggleBg()"></button>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <button class="btn-send" id="sendBtn" onclick="sendOverlay()">
+    🚀 إرسال على البث الآن
+  </button>
+  <button class="btn-clear" onclick="clearOverlay()">
+    🗑️ إخفاء النص من البث
+  </button>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──
+let style = 'scroll', color = 'white', bg = true;
+
+const CSS_COLORS = {
+  white:'#fff', yellow:'#FFE600', red:'#FF4D6D',
+  cyan:'#00E5FF', lime:'#00E5A0', orange:'#FF9500'
+};
+
+// ── Helpers ──
+function slVal(id, v, suffix){ document.getElementById(id).textContent = v + suffix; preview(); }
+
+function pickStyle(btn){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  style = btn.dataset.s;
+  preview();
+}
+
+function pickColor(el){
+  document.querySelectorAll('.col-opt').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  color = el.dataset.c;
+  preview();
+}
+
+function toggleBg(){
+  bg = !bg;
+  document.getElementById('bgTog').className = 'tog' + (bg?' on':'');
+  preview();
+}
+
+// ── Live Preview ──
+function preview(){
+  const text = document.getElementById('txtInput').value.trim();
+  const posY = document.getElementById('posY').value;
+  const fs   = document.getElementById('fSize').value;
+  const el   = document.getElementById('previewEl');
+
+  if(!text){ el.style.display='none'; return; }
+
+  el.style.display = 'block';
+  el.textContent   = text;
+  el.style.color   = CSS_COLORS[color] || '#fff';
+  el.style.fontSize = Math.round(fs / 3.2) + 'px';
+  el.className     = 'hasbg'.includes(bg) || bg ? 'hasbg' : '';
+  if(bg) el.classList.add('hasbg');
+
+  el.classList.remove('anim-scroll','anim-fade');
+  el.style.left = el.style.right = el.style.top = el.style.transform = '';
+
+  if(style === 'scroll'){
+    el.classList.add('anim-scroll');
+    el.style.top       = posY + '%';
+    el.style.transform = 'translateY(-50%)';
+  } else if(style === 'fade'){
+    el.classList.add('anim-fade');
+    el.style.left      = '50%';
+    el.style.top       = posY + '%';
+    el.style.transform = 'translate(-50%,-50%)';
+  } else {
+    el.style.left      = '50%';
+    el.style.top       = posY + '%';
+    el.style.transform = 'translate(-50%,-50%)';
+  }
+}
+
+// ── Char counter ──
+document.getElementById('txtInput').addEventListener('input', ()=>{
+  const v = document.getElementById('txtInput').value;
+  document.getElementById('charCount').textContent = v.length;
+  preview();
+});
+
+// ── Status polling ──
+async function pollStatus(){
+  try{
+    const r = await fetch('/api/status');
+    const d = await r.json();
+    const badge = document.getElementById('liveBadge');
+    const liveT = document.getElementById('liveText');
+    const bar   = document.getElementById('activeBar');
+    const atxt  = document.getElementById('activeText');
+
+    if(d.running){
+      badge.className = 'live-badge';
+      liveT.textContent = '🔴 مباشر';
+    } else {
+      badge.className = 'live-badge offline';
+      liveT.textContent = 'جاري الاتصال...';
+    }
+
+    if(d.visible && d.current_text){
+      bar.className = 'overlay-active-bar show';
+      atxt.textContent = '"' + d.current_text + '"';
+    } else {
+      bar.className = 'overlay-active-bar';
+    }
+  }catch(e){}
+}
+
+setInterval(pollStatus, 2500);
+pollStatus();
+
+// ── Send ──
+async function sendOverlay(){
+  const text = document.getElementById('txtInput').value.trim();
+  if(!text){ toast('اكتب نصاً أولاً!','err'); return; }
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري الإرسال...';
+
+  try{
+    await fetch('/api/overlay',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        text,
+        visible: true,
+        style,
+        position_y: +document.getElementById('posY').value,
+        font_size:  +document.getElementById('fSize').value,
+        color,
+        bg
+      })
+    });
+    toast('✅ ظهر النص على البث!','ok');
+  }catch(e){
+    toast('❌ تعذّر الإرسال','err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🚀 إرسال على البث الآن';
+  }
+}
+
+// ── Clear ──
+async function clearOverlay(){
+  try{
+    await fetch('/api/overlay',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({visible:false, text:''})
+    });
+    document.getElementById('txtInput').value = '';
+    document.getElementById('charCount').textContent = '0';
+    document.getElementById('previewEl').style.display = 'none';
+    toast('🗑️ تم إخفاء النص من البث','ok');
+  }catch(e){
+    toast('❌ فشل الحذف','err');
+  }
+}
+
+// ── Toast ──
+function toast(msg, type='ok'){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast show ${type}`;
+  setTimeout(()=> el.className='toast', 3000);
+}
+</script>
+</body>
+</html>
