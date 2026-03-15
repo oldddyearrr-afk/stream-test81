@@ -1,4 +1,4 @@
-name: 📡 Live Stream Pro
+name: Live Stream Pro
 
 on:
   workflow_dispatch:
@@ -21,15 +21,16 @@ jobs:
 
       - name: 📦 Install dependencies
         run: |
-          pip install flask pyzmq
+          pip install flask pyzmq pyngrok
           sudo apt-get update -qq
           sudo apt-get install -y ffmpeg
 
       - name: 🎬 Verify ffmpeg ZMQ support
         run: ffmpeg -filters | grep zmq
 
-      - name: 🚀 Start Stream
+      - name: 🚀 Start Stream + ngrok
         env:
-          INPUT_URL: ${{ secrets.INPUT_URL }}
-          OUTPUT_URL: ${{ secrets.OUTPUT_URL }}
+          INPUT_URL:   ${{ secrets.INPUT_URL }}
+          OUTPUT_URL:  ${{ secrets.OUTPUT_URL }}
+          NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
         run: python stream.py
