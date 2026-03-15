@@ -117,13 +117,7 @@ def status():
 
 def build_ffmpeg_cmd():
     vf = (
-        "fps=30,scale=1280:-2,"
-        "drawtext=text=' '"
-        ":fontsize=48"
-        ":fontcolor=white@0"
-        ":x=(W-tw)/2"
-        ":y=h*0.9"
-        ",zmq=bind_address=tcp\\://127.0.0.1\\:" + str(ZMQ_PORT)
+        f"fps=30,scale=1280:-2,drawtext=text='_':fontsize=48:fontcolor=white@0:x=(W-tw)/2:y=h*0.9,zmq=bind_address=tcp\\://127.0.0.1\\:{ZMQ_PORT}"
     )
     return [
         'ffmpeg',
