@@ -1,0 +1,35 @@
+name: 📡 Live Stream Pro
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */5 * * *'
+
+jobs:
+  stream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+
+    steps:
+      - name: ✅ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install dependencies
+        run: |
+          pip install flask pyzmq
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+
+      - name: 🎬 Verify ffmpeg ZMQ support
+        run: ffmpeg -filters | grep zmq
+
+      - name: 🚀 Start Stream
+        env:
+          INPUT_URL: ${{ secrets.INPUT_URL }}
+          OUTPUT_URL: ${{ secrets.OUTPUT_URL }}
+        run: python stream.py
