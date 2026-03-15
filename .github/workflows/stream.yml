@@ -1,4 +1,4 @@
-name: Live Stream Pro
+name: 📡 Live Stream Pro
 
 on:
   workflow_dispatch:
@@ -19,16 +19,30 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 📦 Install dependencies
+      - name: 💾 Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: pip-
+
+      - name: 💾 Cache ffmpeg
+        id: cache-ffmpeg
+        uses: actions/cache@v4
+        with:
+          path: /usr/bin/ffmpeg
+          key: ffmpeg-6.1-ubuntu
+
+      - name: 📦 Install ffmpeg (if not cached)
+        if: steps.cache-ffmpeg.outputs.cache-hit != 'true'
         run: |
-          pip install flask pyzmq pyngrok
           sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y ffmpeg -qq
 
-      - name: 🎬 Verify ffmpeg ZMQ support
-        run: ffmpeg -filters | grep zmq
+      - name: 📦 Install Python deps
+        run: pip install flask pyzmq pyngrok --quiet
 
-      - name: 🚀 Start Stream + ngrok
+      - name: 🚀 Start Stream
         env:
           INPUT_URL:   ${{ secrets.INPUT_URL }}
           OUTPUT_URL:  ${{ secrets.OUTPUT_URL }}
