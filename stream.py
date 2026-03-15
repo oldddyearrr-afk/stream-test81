@@ -63,7 +63,7 @@ def update_overlay_live(config):
     fc = color_map.get(color, "white")
 
     if not visible or not text.strip():
-        send_zmq_command("Parsed_drawtext_0 reinit fontcolor=black@0:text= ")
+        send_zmq_command("Parsed_drawtext_0 reinit text= :fontcolor=black@0")
         return
 
     safe_text = text.replace("'","").replace("\\","").replace(":","　").replace("\n"," ")
@@ -73,8 +73,8 @@ def update_overlay_live(config):
     else:
         x_expr = "(W-tw)/2"
 
-    y_expr = f"h*{pos_y}/100-th/2"
-    bg_str = ":box=1:boxcolor=black@0.5:boxborderw=12" if bg else ""
+    y_expr  = f"h*{pos_y}/100-th/2"
+    bg_str  = ":box=1:boxcolor=black@0.5:boxborderw=12" if bg else ""
 
     cmd = (
         f"Parsed_drawtext_0 reinit "
@@ -85,7 +85,6 @@ def update_overlay_live(config):
         f":y={y_expr}"
         f"{bg_str}"
     )
-
     ok, reply = send_zmq_command(cmd)
     print(f"ZMQ {'✅' if ok else '❌'}: {reply}")
 
@@ -116,11 +115,10 @@ def status():
 # ── FFmpeg ──
 
 def build_ffmpeg_cmd():
-    # filter_complex يحل مشكلة الـ escape مع zmq
     fc = (
-        f"[0:v]fps=30,scale=1280:-2,"
-        f"drawtext=text=' ':fontsize=48:fontcolor=white@0:x=10:y=10"
-        f"[txt];[txt]zmq[out]"
+        "[0:v]fps=30,scale=1280:-2,"
+        "drawtext=text=' ':fontsize=48:fontcolor=white@0:x=10:y=10"
+        "[txt];[txt]zmq[out]"
     )
     return [
         'ffmpeg',
@@ -136,7 +134,7 @@ def build_ffmpeg_cmd():
         '-i', INPUT_URL,
         '-filter_complex', fc,
         '-map', '[out]',
-        '-map', '0:a?',
+        '-map', '0:a',
         '-vcodec', 'libx264',
         '-preset', 'ultrafast',
         '-tune', 'zerolatency',
@@ -161,7 +159,7 @@ def build_ffmpeg_cmd():
 
 def start_stream():
     if not INPUT_URL or not OUTPUT_URL:
-        print("❌ ERROR: تأكد من إضافة INPUT_URL و OUTPUT_URL في GitHub Secrets!")
+        print("❌ ERROR: تأكد من INPUT_URL و OUTPUT_URL في Secrets!")
         return
 
     while True:
@@ -177,12 +175,12 @@ def start_stream():
                 universal_newlines=True
             )
 
-            def reapply_overlay():
-                time.sleep(4)
+            def reapply():
+                time.sleep(5)
                 if overlay_config.get("visible") and overlay_config.get("text"):
                     print("🔁 Re-applying overlay...")
                     update_overlay_live(overlay_config)
-            threading.Thread(target=reapply_overlay, daemon=True).start()
+            threading.Thread(target=reapply, daemon=True).start()
 
             for line in process.stdout:
                 line = line.strip()
@@ -197,10 +195,10 @@ def start_stream():
         finally:
             stream_status['running'] = False
             stream_status['retries'] += 1
-            print(f"🔄 Reconnecting in 3 seconds...")
+            print("🔄 Reconnecting in 3 seconds...")
             time.sleep(3)
 
-# ── ngrok ──
+# ── ngrok — ينتظر Flask يشتغل أولاً ──
 
 def start_ngrok():
     if not NGROK_TOKEN:
@@ -209,7 +207,16 @@ def start_ngrok():
     try:
         from pyngrok import ngrok, conf
         conf.get_default().auth_token = NGROK_TOKEN
-        time.sleep(2)
+
+        # انتظر حتى Flask يصبح جاهزاً
+        import urllib.request
+        for _ in range(20):
+            try:
+                urllib.request.urlopen("http://127.0.0.1:7860", timeout=1)
+                break
+            except:
+                time.sleep(1)
+
         tunnel = ngrok.connect(7860)
         print("\n" + "="*55)
         print(f"🌐 رابط لوحة التحكم:")
@@ -221,5 +228,5 @@ def start_ngrok():
 if __name__ == "__main__":
     os.makedirs('static', exist_ok=True)
     threading.Thread(target=start_stream, daemon=True).start()
-    threading.Thread(target=start_ngrok, daemon=True).start()
+    threading.Thread(target=start_ngrok,  daemon=True).start()
     app.run(host="0.0.0.0", port=7860, threaded=True)
