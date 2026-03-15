@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎬 Stream Overlay Pro</title>
+<title>ðŸŽ¬ Stream Overlay Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -45,7 +45,7 @@
     position: relative; z-index:1;
   }
 
-  /* ── Header ── */
+  /* â”€â”€ Header â”€â”€ */
   .header {
     display: flex;
     align-items: center;
@@ -109,7 +109,7 @@
     50%{opacity:.4;transform:scale(.8)}
   }
 
-  /* ── Preview ── */
+  /* â”€â”€ Preview â”€â”€ */
   .preview-wrap {
     background: var(--s1);
     border: 1px solid var(--border);
@@ -175,7 +175,7 @@
   #previewEl.anim-scroll { animation: scrollLeft 7s linear infinite; left:0!important; }
   #previewEl.anim-fade   { animation: fadeLoop 3s ease-in-out infinite; }
 
-  /* ── Cards ── */
+  /* â”€â”€ Cards â”€â”€ */
   .card {
     background: var(--s1);
     border: 1px solid var(--border);
@@ -387,7 +387,7 @@
   <!-- Header -->
   <div class="header">
     <div class="brand">
-      <div class="brand-icon">🎬</div>
+      <div class="brand-icon">ðŸŽ¬</div>
       <div>
         <div class="brand-name">Stream Overlay</div>
         <div class="brand-sub">Pro Control Panel</div>
@@ -395,20 +395,20 @@
     </div>
     <div class="live-badge offline" id="liveBadge">
       <div class="live-dot"></div>
-      <span id="liveText">جاري الاتصال</span>
+      <span id="liveText">Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø§ØªØµØ§Ù„</span>
     </div>
   </div>
 
   <!-- Overlay Active Bar -->
   <div class="overlay-active-bar" id="activeBar">
-    <span>✅</span>
-    <span>النص على البث الآن: <b id="activeText">—</b></span>
+    <span>âœ…</span>
+    <span>Ø§Ù„Ù†Øµ Ø¹Ù„Ù‰ Ø§Ù„Ø¨Ø« Ø§Ù„Ø¢Ù†: <b id="activeText">â€”</b></span>
   </div>
 
   <!-- Preview -->
   <div class="preview-wrap">
     <div class="preview-header">
-      <span>👁</span> معاينة — تقريبية فقط
+      <span>ðŸ‘</span> Ù…Ø¹Ø§ÙŠÙ†Ø© â€” ØªÙ‚Ø±ÙŠØ¨ÙŠØ© ÙÙ‚Ø·
     </div>
     <div class="preview-screen">
       <div class="preview-bg">
@@ -421,38 +421,38 @@
 
   <!-- Text -->
   <div class="card">
-    <div class="card-head"><span>✏️</span> النص</div>
-    <textarea class="textarea" id="txtInput" placeholder="اكتب ما تريد إظهاره على البث..." maxlength="120"></textarea>
+    <div class="card-head"><span>âœï¸</span> Ø§Ù„Ù†Øµ</div>
+    <textarea class="textarea" id="txtInput" placeholder="Ø§ÙƒØªØ¨ Ù…Ø§ ØªØ±ÙŠØ¯ Ø¥Ø¸Ù‡Ø§Ø±Ù‡ Ø¹Ù„Ù‰ Ø§Ù„Ø¨Ø«..." maxlength="120"></textarea>
     <div class="char-row"><span id="charCount">0</span> / 120</div>
   </div>
 
   <!-- Style -->
   <div class="card">
-    <div class="card-head"><span>🎞</span> نوع الحركة</div>
+    <div class="card-head"><span>ðŸŽž</span> Ù†ÙˆØ¹ Ø§Ù„Ø­Ø±ÙƒØ©</div>
     <div class="tabs">
       <button class="tab on" data-s="scroll" onclick="pickStyle(this)">
-        <span>◀▶</span>متحرك
+        <span>â—€â–¶</span>Ù…ØªØ­Ø±Ùƒ
       </button>
       <button class="tab" data-s="static" onclick="pickStyle(this)">
-        <span>⬛</span>ثابت
+        <span>â¬›</span>Ø«Ø§Ø¨Øª
       </button>
       <button class="tab" data-s="fade" onclick="pickStyle(this)">
-        <span>✨</span>ظهور واختفاء
+        <span>âœ¨</span>Ø¸Ù‡ÙˆØ± ÙˆØ§Ø®ØªÙØ§Ø¡
       </button>
     </div>
   </div>
 
   <!-- Position & Size -->
   <div class="card">
-    <div class="card-head"><span>📐</span> الموقع والحجم</div>
+    <div class="card-head"><span>ðŸ“</span> Ø§Ù„Ù…ÙˆÙ‚Ø¹ ÙˆØ§Ù„Ø­Ø¬Ù…</div>
     <div class="sl-row">
-      <span class="sl-lbl">الموقع العمودي</span>
+      <span class="sl-lbl">Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ø¹Ù…ÙˆØ¯ÙŠ</span>
       <input type="range" id="posY" min="5" max="95" value="90"
         oninput="slVal('posYv',this.value,'%');preview()">
       <span class="sl-val" id="posYv">90%</span>
     </div>
     <div class="sl-row">
-      <span class="sl-lbl">حجم الخط</span>
+      <span class="sl-lbl">Ø­Ø¬Ù… Ø§Ù„Ø®Ø·</span>
       <input type="range" id="fSize" min="24" max="96" value="48"
         oninput="slVal('fSizev',this.value,'px');preview()">
       <span class="sl-val" id="fSizev">48px</span>
@@ -461,19 +461,19 @@
 
   <!-- Color & BG -->
   <div class="card">
-    <div class="card-head"><span>🎨</span> اللون والخلفية</div>
+    <div class="card-head"><span>ðŸŽ¨</span> Ø§Ù„Ù„ÙˆÙ† ÙˆØ§Ù„Ø®Ù„ÙÙŠØ©</div>
     <div class="colors">
-      <div class="col-opt on"  data-c="white"  style="background:#fff"    onclick="pickColor(this)" title="أبيض"></div>
-      <div class="col-opt"     data-c="yellow" style="background:#FFE600" onclick="pickColor(this)" title="أصفر"></div>
-      <div class="col-opt"     data-c="red"    style="background:#FF4D6D" onclick="pickColor(this)" title="أحمر"></div>
-      <div class="col-opt"     data-c="cyan"   style="background:#00E5FF" onclick="pickColor(this)" title="سماوي"></div>
-      <div class="col-opt"     data-c="lime"   style="background:#00E5A0" onclick="pickColor(this)" title="أخضر"></div>
-      <div class="col-opt"     data-c="orange" style="background:#FF9500" onclick="pickColor(this)" title="برتقالي"></div>
+      <div class="col-opt on"  data-c="white"  style="background:#fff"    onclick="pickColor(this)" title="Ø£Ø¨ÙŠØ¶"></div>
+      <div class="col-opt"     data-c="yellow" style="background:#FFE600" onclick="pickColor(this)" title="Ø£ØµÙØ±"></div>
+      <div class="col-opt"     data-c="red"    style="background:#FF4D6D" onclick="pickColor(this)" title="Ø£Ø­Ù…Ø±"></div>
+      <div class="col-opt"     data-c="cyan"   style="background:#00E5FF" onclick="pickColor(this)" title="Ø³Ù…Ø§ÙˆÙŠ"></div>
+      <div class="col-opt"     data-c="lime"   style="background:#00E5A0" onclick="pickColor(this)" title="Ø£Ø®Ø¶Ø±"></div>
+      <div class="col-opt"     data-c="orange" style="background:#FF9500" onclick="pickColor(this)" title="Ø¨Ø±ØªÙ‚Ø§Ù„ÙŠ"></div>
     </div>
     <div class="tog-row">
       <div class="tog-info">
-        <div class="tog-title">خلفية شفافة خلف النص</div>
-        <div class="tog-desc">تسهّل القراءة على أي خلفية</div>
+        <div class="tog-title">Ø®Ù„ÙÙŠØ© Ø´ÙØ§ÙØ© Ø®Ù„Ù Ø§Ù„Ù†Øµ</div>
+        <div class="tog-desc">ØªØ³Ù‡Ù‘Ù„ Ø§Ù„Ù‚Ø±Ø§Ø¡Ø© Ø¹Ù„Ù‰ Ø£ÙŠ Ø®Ù„ÙÙŠØ©</div>
       </div>
       <button class="tog on" id="bgTog" onclick="toggleBg()"></button>
     </div>
@@ -481,10 +481,10 @@
 
   <!-- Actions -->
   <button class="btn-send" id="sendBtn" onclick="sendOverlay()">
-    🚀 إرسال على البث الآن
+    ðŸš€ Ø¥Ø±Ø³Ø§Ù„ Ø¹Ù„Ù‰ Ø§Ù„Ø¨Ø« Ø§Ù„Ø¢Ù†
   </button>
   <button class="btn-clear" onclick="clearOverlay()">
-    🗑️ إخفاء النص من البث
+    ðŸ—‘ï¸ Ø¥Ø®ÙØ§Ø¡ Ø§Ù„Ù†Øµ Ù…Ù† Ø§Ù„Ø¨Ø«
   </button>
 
 </div>
@@ -492,7 +492,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ── State ──
+// â”€â”€ State â”€â”€
 let style = 'scroll', color = 'white', bg = true;
 
 const CSS_COLORS = {
@@ -500,7 +500,7 @@ const CSS_COLORS = {
   cyan:'#00E5FF', lime:'#00E5A0', orange:'#FF9500'
 };
 
-// ── Helpers ──
+// â”€â”€ Helpers â”€â”€
 function slVal(id, v, suffix){ document.getElementById(id).textContent = v + suffix; preview(); }
 
 function pickStyle(btn){
@@ -523,7 +523,7 @@ function toggleBg(){
   preview();
 }
 
-// ── Live Preview ──
+// â”€â”€ Live Preview â”€â”€
 function preview(){
   const text = document.getElementById('txtInput').value.trim();
   const posY = document.getElementById('posY').value;
@@ -558,14 +558,14 @@ function preview(){
   }
 }
 
-// ── Char counter ──
+// â”€â”€ Char counter â”€â”€
 document.getElementById('txtInput').addEventListener('input', ()=>{
   const v = document.getElementById('txtInput').value;
   document.getElementById('charCount').textContent = v.length;
   preview();
 });
 
-// ── Status polling ──
+// â”€â”€ Status polling â”€â”€
 async function pollStatus(){
   try{
     const r = await fetch('/api/status');
@@ -577,10 +577,10 @@ async function pollStatus(){
 
     if(d.running){
       badge.className = 'live-badge';
-      liveT.textContent = '🔴 مباشر';
+      liveT.textContent = 'ðŸ”´ Ù…Ø¨Ø§Ø´Ø±';
     } else {
       badge.className = 'live-badge offline';
-      liveT.textContent = 'جاري الاتصال...';
+      liveT.textContent = 'Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø§ØªØµØ§Ù„...';
     }
 
     if(d.visible && d.current_text){
@@ -595,14 +595,14 @@ async function pollStatus(){
 setInterval(pollStatus, 2500);
 pollStatus();
 
-// ── Send ──
+// â”€â”€ Send â”€â”€
 async function sendOverlay(){
   const text = document.getElementById('txtInput').value.trim();
-  if(!text){ toast('اكتب نصاً أولاً!','err'); return; }
+  if(!text){ toast('Ø§ÙƒØªØ¨ Ù†ØµØ§Ù‹ Ø£ÙˆÙ„Ø§Ù‹!','err'); return; }
 
   const btn = document.getElementById('sendBtn');
   btn.disabled = true;
-  btn.textContent = '⏳ جاري الإرسال...';
+  btn.textContent = 'â³ Ø¬Ø§Ø±ÙŠ Ø§Ù„Ø¥Ø±Ø³Ø§Ù„...';
 
   try{
     await fetch('/api/overlay',{
@@ -618,16 +618,16 @@ async function sendOverlay(){
         bg
       })
     });
-    toast('✅ ظهر النص على البث!','ok');
+    toast('âœ… Ø¸Ù‡Ø± Ø§Ù„Ù†Øµ Ø¹Ù„Ù‰ Ø§Ù„Ø¨Ø«!','ok');
   }catch(e){
-    toast('❌ تعذّر الإرسال','err');
+    toast('âŒ ØªØ¹Ø°Ù‘Ø± Ø§Ù„Ø¥Ø±Ø³Ø§Ù„','err');
   } finally {
     btn.disabled = false;
-    btn.textContent = '🚀 إرسال على البث الآن';
+    btn.textContent = 'ðŸš€ Ø¥Ø±Ø³Ø§Ù„ Ø¹Ù„Ù‰ Ø§Ù„Ø¨Ø« Ø§Ù„Ø¢Ù†';
   }
 }
 
-// ── Clear ──
+// â”€â”€ Clear â”€â”€
 async function clearOverlay(){
   try{
     await fetch('/api/overlay',{
@@ -638,13 +638,13 @@ async function clearOverlay(){
     document.getElementById('txtInput').value = '';
     document.getElementById('charCount').textContent = '0';
     document.getElementById('previewEl').style.display = 'none';
-    toast('🗑️ تم إخفاء النص من البث','ok');
+    toast('ðŸ—‘ï¸ ØªÙ… Ø¥Ø®ÙØ§Ø¡ Ø§Ù„Ù†Øµ Ù…Ù† Ø§Ù„Ø¨Ø«','ok');
   }catch(e){
-    toast('❌ فشل الحذف','err');
+    toast('âŒ ÙØ´Ù„ Ø§Ù„Ø­Ø°Ù','err');
   }
 }
 
-// ── Toast ──
+// â”€â”€ Toast â”€â”€
 function toast(msg, type='ok'){
   const el = document.getElementById('toast');
   el.textContent = msg;
